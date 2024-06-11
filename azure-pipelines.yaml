@@ -6,7 +6,7 @@ pool:
 
 variables:
   imageName: 'myapp'
-  dockerRegistryServiceConnection: 'YOUR_DOCKER_REGISTRY_SERVICE_CONNECTION'
+  dockerRegistryServiceConnection: 'sc-acr-cicd
   servicePrincipalId: 'YOUR_SERVICE_PRINCIPAL_ID'
   servicePrincipalKey: 'YOUR_SERVICE_PRINCIPAL_KEY'
   tenantId: 'YOUR_TENANT_ID'
