@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  - group: 'variable-group-app'  # Nome do variable group criado no Azure DevOps
+  - group: 'my-variable-group'  # Nome do variable group criado no Azure DevOps
 
 stages:
 - stage: Test
@@ -38,8 +38,6 @@ stages:
         Dockerfile: '**/Dockerfile'
         tags: |
           $(Build.BuildId)
-    - publish: $(Pipeline.Workspace)/images
-      artifact: images
 
 - stage: Deploy
   dependsOn: Build
@@ -51,9 +49,6 @@ stages:
       runOnce:
         deploy:
           steps:
-          - download: current
-            artifact: images
-
           - script: |
               az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
               az acr login --name $(acrName)
