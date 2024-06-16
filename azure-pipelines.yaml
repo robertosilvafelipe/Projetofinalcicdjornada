@@ -16,7 +16,12 @@ stages:
     - script: |
         az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
         az acr login --name $(acrName)
+        docker login $(acrName).azurecr.io -u $(servicePrincipalId) -p $(servicePrincipalKey)
       displayName: 'Login to Azure Container Registry'
+    - script: |
+        nslookup $(acrName).azurecr.io
+        ping -c 4 $(acrName).azurecr.io
+      displayName: 'Network Diagnostic'
     - task: Docker@2
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
@@ -39,6 +44,7 @@ stages:
           - script: |
               az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
               az acr login --name $(acrName)
+              docker login $(acrName).azurecr.io -u $(servicePrincipalId) -p $(servicePrincipalKey)
               az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --image $(acrName).azurecr.io/$(imageName):$(Build.BuildId)
             displayName: 'Deploy to Azure Container Apps'
           - script: |
