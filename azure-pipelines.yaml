@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  - group: 'my-variable-group'  # Nome do variable group criado no Azure DevOps
+  - group: 'variable-group-jornada'  # Nome do variable group criado no Azure DevOps
 
 stages:
 - stage: Test
