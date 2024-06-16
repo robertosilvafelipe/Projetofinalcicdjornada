@@ -15,3 +15,4 @@ EXPOSE 80
 
 # Start Nginx when the container has started
 CMD ["nginx", "-g", "daemon off;"]
+
