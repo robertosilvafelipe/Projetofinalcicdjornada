@@ -13,6 +13,10 @@ stages:
   - job: BuildDockerImage
     displayName: 'Build Docker Image'
     steps:
+    - script: |
+        az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
+        az acr login --name $(acrName)
+      displayName: 'Login to Azure Container Registry'
     - task: Docker@2
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
@@ -40,7 +44,7 @@ stages:
           - script: |
               # Espera um tempo para a aplicação iniciar
               echo "Waiting for application to start..."
-              sleep 60
+              sleep 120
               app_url=$(az containerapp show --name $(containerAppName) --resource-group $(resourceGroup) --query "properties.configuration.ingress.fqdn" -o tsv)
               echo "Application URL: https://$app_url"
               response=$(curl -s -o /dev/null -w "%{http_code}" https://$app_url)
