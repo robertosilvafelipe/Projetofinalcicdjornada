@@ -54,3 +54,32 @@ stages:
               az acr login --name $(acrName)
               az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --image $(acrName).azurecr.io/$(imageName):$(Build.BuildId)
             displayName: 'Deploy to Azure Container Apps'
+          - script: |
+              # Verifica se a aplicação está respondendo corretamente
+              app_url=$(az containerapp show --name $(containerAppName) --resource-group $(resourceGroup) --query "properties.configuration.ingress.fqdn" -o tsv)
+              response=$(curl -s -o /dev/null -w "%{http_code}" https://$app_url)
+              if [ $response -eq 200 ]; then
+                echo "Application is running successfully."
+              else
+                echo "Application is not responding as expected."
+                exit 1
+              fi
+            displayName: 'Verify Application Status'
+
+- stage: Post-Deploy-Tests
+  dependsOn: Deploy
+  condition: succeeded()
+  jobs:
+  - job: RunIntegrationTests
+    displayName: 'Run Integration Tests'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
+    - script: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        pytest integration_tests
+      displayName: 'Run Integration Tests'
