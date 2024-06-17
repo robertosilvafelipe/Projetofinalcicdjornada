@@ -7,9 +7,9 @@ pool:
 variables:
   - group: 'variable-group-app'  # Nome do variable group criado no Azure DevOps
   - name: DOCKER_HUB_USERNAME
-    value: 'robertosilvafelipe'
+    value: 'your_dockerhub_username'
   - name: DOCKER_HUB_PASSWORD
-    value: 'a0M1if13@'
+    value: 'your_dockerhub_password'
 
 stages:
 - stage: Test
@@ -44,7 +44,7 @@ stages:
       displayName: 'Docker Info and Images'
     - task: Docker@2
       inputs:
-        containerRegistry: '$(dockerRegistryServiceConnection)'  # Referência à conexão de serviço configurada na biblioteca
+        containerRegistry: 'dockerRegistryServiceConnection'  # Referência à conexão de serviço configurada na biblioteca
         repository: 'robertosilvafelipe/nginx-custom'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
@@ -72,7 +72,7 @@ stages:
             displayName: 'Deploy to Azure Container Apps'
           - script: |
               echo "Deployment initiated, waiting for application to start..."
-              sleep 60
+              sleep 10
               app_url=$(az containerapp show --name $(containerAppName) --resource-group $(resourceGroup) --query "properties.configuration.ingress.fqdn" -o tsv)
               echo "Application URL: http://$app_url"
               response=$(curl -s -o /dev/null -w "%{http_code}" https://$app_url)
