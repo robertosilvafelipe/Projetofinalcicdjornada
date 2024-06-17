@@ -54,7 +54,3 @@ stages:
                 exit 1
               fi
             displayName: 'Verify Application Status'
-          - script: |
-              echo "Fetching application logs..."
-              az containerapp logs show --name $(containerAppName) --resource-group $(resourceGroup) --revision $(containerAppName)-$(Build.BuildId)
-            displayName: 'Fetch Application Logs'
