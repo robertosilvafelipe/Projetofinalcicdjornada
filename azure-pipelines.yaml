@@ -13,17 +13,6 @@ stages:
   - job: BuildDockerImage
     displayName: 'Build Docker Image'
     steps:
-    - script: |
-        az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
-        az acr login --name $(acrName)
-        docker login $(acrName).azurecr.io -u $(servicePrincipalId) -p $(servicePrincipalKey)
-      displayName: 'Login to Azure Container Registry' 
-    #- script: |
-    #    echo "Verificando DNS e Conectividade de Rede..."
-    #    nslookup $(acrName).azurecr.io
-    #    ping -c 4 $(acrName).azurecr.io
-    #    traceroute $(acrName).azurecr.io
-    #  displayName: 'Network Diagnostic'
     - task: Docker@2
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
@@ -32,6 +21,9 @@ stages:
         Dockerfile: '**/Dockerfile'
         tags: |
           $(Build.BuildId)
+    - script: |
+        echo "Docker build and push completed successfully"
+      displayName: 'Log Build Completion'
 
 - stage: Deploy
   dependsOn: Build
@@ -49,8 +41,7 @@ stages:
               az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --image $(acrName).azurecr.io/$(imageName):$(Build.BuildId)
             displayName: 'Deploy to Azure Container Apps'
           - script: |
-              # Espera um tempo para a aplicação iniciar
-              echo "Waiting for application to start..."
+              echo "Deployment initiated, waiting for application to start..."
               sleep 60
               app_url=$(az containerapp show --name $(containerAppName) --resource-group $(resourceGroup) --query "properties.configuration.ingress.fqdn" -o tsv)
               echo "Application URL: https://$app_url"
@@ -63,3 +54,7 @@ stages:
                 exit 1
               fi
             displayName: 'Verify Application Status'
+          - script: |
+              echo "Fetching application logs..."
+              az containerapp logs show --name $(containerAppName) --resource-group $(resourceGroup) --revision $(containerAppName)-$(Build.BuildId)
+            displayName: 'Fetch Application Logs'
