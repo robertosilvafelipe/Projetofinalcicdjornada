@@ -31,8 +31,33 @@ stages:
         tags: |
           $(Build.BuildId)
 
-- stage: Deploy
+- stage: Test
   dependsOn: Build
+  jobs:
+  - job: RunTests
+    displayName: 'Run Application Tests'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
+    - script: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+      displayName: 'Install Dependencies'
+    - script: |
+        source venv/bin/activate
+        pytest tests/test_sample.py --junitxml=test-results.xml
+      displayName: 'Run Tests'
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'test-results.xml'
+        failTaskOnFailedTests: true
+
+- stage: Deploy
+  dependsOn: Test
   jobs:
   - deployment: DeployToContainerApps
     displayName: 'Deploy to Azure Container Apps'
