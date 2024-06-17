@@ -33,7 +33,7 @@ stages:
     steps:
     - task: Docker@2
       inputs:
-        containerRegistry: $(dockerRegistryServiceConnection)  # Referência à conexão de serviço configurada na biblioteca
+        containerRegistry: 'sc-dockerhub-cicd'  # Conexão de serviço Docker Hub configurada no Azure DevOps
         repository: 'your_dockerhub_username/nginx-custom'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
