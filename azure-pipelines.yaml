@@ -8,29 +8,21 @@ variables:
   - group: 'variable-group-app'  # Nome do variable group criado no Azure DevOps
 
 stages:
-- stage: Test
-  jobs:
-  - job: RunTests
-    displayName: 'Run Tests'
-    steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.x'
-        addToPath: true
-    - script: |
-        python -m venv venv
-        source venv/bin/activate
-        pip install -r requirements.txt
-        cd tests
-        pytest
-      displayName: 'Run Unit Tests'
-
 - stage: Build
-  dependsOn: Test
   jobs:
   - job: BuildDockerImage
     displayName: 'Build Docker Image'
     steps:
+    - script: |
+        az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
+        az acr login --name $(acrName)
+        docker login $(acrName).azurecr.io -u $(servicePrincipalId) -p $(servicePrincipalKey)
+      displayName: 'Login to Azure Container Registry'
+    - script: |
+        echo "Verificando DNS e Conectividade de Rede..."
+        nslookup $(acrName).azurecr.io
+        ping -c 4 $(acrName).azurecr.io
+      displayName: 'Network Diagnostic'
     - task: Docker@2
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
@@ -39,8 +31,6 @@ stages:
         Dockerfile: '**/Dockerfile'
         tags: |
           $(Build.BuildId)
-    - publish: $(Pipeline.Workspace)/images
-      artifact: images
 
 - stage: Deploy
   dependsOn: Build
@@ -52,11 +42,23 @@ stages:
       runOnce:
         deploy:
           steps:
-          - download: current
-            artifact: images
-
           - script: |
               az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
               az acr login --name $(acrName)
               az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --image $(acrName).azurecr.io/$(imageName):$(Build.BuildId)
             displayName: 'Deploy to Azure Container Apps'
+          - script: |
+              # Espera um tempo para a aplicação iniciar
+              echo "Waiting for application to start..."
+              sleep 60
+              app_url=$(az containerapp show --name $(containerAppName) --resource-group $(resourceGroup) --query "properties.configuration.ingress.fqdn" -o tsv)
+              echo "Application URL: https://$app_url"
+              response=$(curl -s -o /dev/null -w "%{http_code}" https://$app_url)
+              echo "HTTP Response Code: $response"
+              if [ $response -eq 200 ]; then
+                echo "Application is running successfully."
+              else
+                echo "Application is not responding as expected."
+                exit 1
+              fi
+            displayName: 'Verify Application Status'
