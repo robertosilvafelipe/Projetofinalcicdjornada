@@ -6,6 +6,8 @@ pool:
 
 variables:
   - group: 'variable-group-app'  # Nome do variable group criado no Azure DevOps
+  DOCKER_HUB_USERNAME: 'robertosilvafelipe'
+  DOCKER_HUB_PASSWORD: 'a0M1if13@'
 
 stages:
 - stage: Test
@@ -34,16 +36,21 @@ stages:
     - script: |
         echo $(DOCKER_HUB_PASSWORD) | docker login -u $(DOCKER_HUB_USERNAME) --password-stdin
       displayName: 'Login to Docker Hub'
+    - script: |
+        docker info
+        docker images
+      displayName: 'Docker Info and Images'
     - task: Docker@2
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'  # Referência à conexão de serviço configurada na biblioteca
-        repository: 'your_dockerhub_username/nginx-custom'
+        repository: 'robertosilvafelipe/nginx-custom'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
         buildContext: '$(Build.SourcesDirectory)'
         tags: |
           $(Build.BuildId)
     - script: |
+        docker images
         echo "Docker build and push completed successfully"
       displayName: 'Log Build Completion'
 
@@ -59,7 +66,7 @@ stages:
           steps:
           - script: |
               az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
-              az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --image your_dockerhub_username/nginx-custom:$(Build.BuildId)
+              az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --image robertosilvafelipe/nginx-custom:$(Build.BuildId)
             displayName: 'Deploy to Azure Container Apps'
           - script: |
               echo "Deployment initiated, waiting for application to start..."
