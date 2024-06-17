@@ -33,10 +33,11 @@ stages:
     steps:
     - task: Docker@2
       inputs:
-        containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: '$(imageName)'
+        containerRegistry: 'DockerHubConnection'  # Conexão de serviço Docker Hub configurada no Azure DevOps
+        repository: 'robertosilvafelipe/nginx-custom'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
+        buildContext: '$(Build.SourcesDirectory)'
         tags: |
           $(Build.BuildId)
     - script: |
@@ -55,8 +56,7 @@ stages:
           steps:
           - script: |
               az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
-              az acr login --name $(acrName)
-              az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --image $(acrName).azurecr.io/$(imageName):$(Build.BuildId)
+              az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --image robertosilvafelipe/nginx-custom:$(Build.BuildId)
             displayName: 'Deploy to Azure Container Apps'
           - script: |
               echo "Deployment initiated, waiting for application to start..."
