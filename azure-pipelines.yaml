@@ -74,7 +74,7 @@ stages:
               echo "Deployment initiated, waiting for application to start..."
               sleep 60
               app_url=$(az containerapp show --name $(containerAppName) --resource-group $(resourceGroup) --query "properties.configuration.ingress.fqdn" -o tsv)
-              echo "Application URL: https://$app_url"
+              echo "Application URL: http://$app_url"
               response=$(curl -s -o /dev/null -w "%{http_code}" https://$app_url)
               echo "HTTP Response Code: $response"
               if [ $response -eq 200 ]; then
