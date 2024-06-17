@@ -31,9 +31,12 @@ stages:
   - job: BuildDockerImage
     displayName: 'Build Docker Image'
     steps:
+    - script: |
+        echo $(DOCKER_HUB_PASSWORD) | docker login -u $(DOCKER_HUB_USERNAME) --password-stdin
+      displayName: 'Login to Docker Hub'
     - task: Docker@2
       inputs:
-        containerRegistry: 'sc-dockerhub-cicd'  # Conexão de serviço Docker Hub configurada no Azure DevOps
+        containerRegistry: '$(dockerRegistryServiceConnection)'  # Referência à conexão de serviço configurada na biblioteca
         repository: 'your_dockerhub_username/nginx-custom'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
