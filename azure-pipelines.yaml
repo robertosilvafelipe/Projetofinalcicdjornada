@@ -22,6 +22,7 @@ stages:
         echo "Verificando DNS e Conectividade de Rede..."
         nslookup $(acrName).azurecr.io
         ping -c 4 $(acrName).azurecr.io
+        traceroute $(acrName).azurecr.io
       displayName: 'Network Diagnostic'
     - task: Docker@2
       inputs:
