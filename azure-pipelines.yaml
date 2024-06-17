@@ -17,7 +17,7 @@ stages:
         az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
         az acr login --name $(acrName)
         docker login $(acrName).azurecr.io -u $(servicePrincipalId) -p $(servicePrincipalKey)
-      displayName: 'Login to Azure Container Registry'
+      displayName: 'Login to Azure Container Registry' 
     #- script: |
     #    echo "Verificando DNS e Conectividade de Rede..."
     #    nslookup $(acrName).azurecr.io
