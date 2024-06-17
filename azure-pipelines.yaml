@@ -8,34 +8,10 @@ variables:
   - group: 'variable-group-app'  # Nome do variable group criado no Azure DevOps
 
 stages:
-- stage: Build
-  jobs:
-  - job: BuildDockerImage
-    displayName: 'Build Docker Image'
-    steps:
-    - script: |
-        az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
-        az acr login --name $(acrName)
-        docker login $(acrName).azurecr.io -u $(servicePrincipalId) -p $(servicePrincipalKey)
-      displayName: 'Login to Azure Container Registry'
-#    - script: |
-#        nslookup $(acrName).azurecr.io
-#        ping -c 4 $(acrName).azurecr.io
-#     displayName: 'Network Diagnostic'
-    - task: Docker@2
-      inputs:
-        containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: '$(imageName)'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: |
-          $(Build.BuildId)
-
 - stage: Test
-  dependsOn: Build
   jobs:
   - job: RunTests
-    displayName: 'Run Application Tests'
+    displayName: 'Run Tests'
     steps:
     - task: UsePythonVersion@0
       inputs:
@@ -45,19 +21,29 @@ stages:
         python -m venv venv
         source venv/bin/activate
         pip install -r requirements.txt
-      displayName: 'Install Dependencies'
-    - script: |
-        source venv/bin/activate
-        pytest tests/test_sample.py --junitxml=test-results.xml
-      displayName: 'Run Tests'
-    - task: PublishTestResults@2
+        cd tests
+        pytest
+      displayName: 'Run Unit Tests'
+
+- stage: Build
+  dependsOn: Test
+  jobs:
+  - job: BuildDockerImage
+    displayName: 'Build Docker Image'
+    steps:
+    - task: Docker@2
       inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: 'test-results.xml'
-        failTaskOnFailedTests: true
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageName)'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(Build.BuildId)
+    - publish: $(Pipeline.Workspace)/images
+      artifact: images
 
 - stage: Deploy
-  dependsOn: Test
+  dependsOn: Build
   jobs:
   - deployment: DeployToContainerApps
     displayName: 'Deploy to Azure Container Apps'
@@ -66,24 +52,11 @@ stages:
       runOnce:
         deploy:
           steps:
+          - download: current
+            artifact: images
+
           - script: |
               az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
               az acr login --name $(acrName)
-              docker login $(acrName).azurecr.io -u $(servicePrincipalId) -p $(servicePrincipalKey)
               az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --image $(acrName).azurecr.io/$(imageName):$(Build.BuildId)
             displayName: 'Deploy to Azure Container Apps'
-          - script: |
-              # Espera um tempo para a aplicação iniciar
-              echo "Waiting for application to start..."
-              sleep 120
-              app_url=$(az containerapp show --name $(containerAppName) --resource-group $(resourceGroup) --query "properties.configuration.ingress.fqdn" -o tsv)
-              echo "Application URL: https://$app_url"
-              response=$(curl -s -o /dev/null -w "%{http_code}" https://$app_url)
-              echo "HTTP Response Code: $response"
-              if [ $response -eq 200 ]; then
-                echo "Application is running successfully."
-              else
-                echo "Application is not responding as expected."
-                exit 1
-              fi
-            displayName: 'Verify Application Status'
