@@ -1,6 +1,6 @@
-# Projetofinalcicdjornada
+# Projeto Final - CI/CD Jornada Devops 
 
-## Introduction 
+## Introdução 
 Este projeto implementa uma pipeline de Integração e Entrega Contínua (CI/CD) utilizando o Azure DevOps. A pipeline está configurada para executar testes automáticos, construir uma imagem Docker e realizar o push para um registro de containers. Além disso, a pipeline está configurada para implantar a aplicação em um ambiente de Container Apps no Azure.
 
 ## Iniciando 
@@ -149,6 +149,9 @@ stages:
 7. **Verificar e Salvar**:
    - Clique em "Verify" para testar a conexão. Se estiver tudo correto, clique em "Save" para salvar a conexão de serviço.
 
+![Service Connection](images/serviceconnection.png)
+
+
 #### Configurando uma Conexão de Serviço para o Azure Container Apps
 
 1. **Adicionar uma Nova Conexão de Serviço**:
@@ -180,8 +183,6 @@ Se você estiver utilizando um registro de container local ou outro tipo de regi
   - **Service connection name**: Dê um nome descritivo, como `local-registry-connection`.
 
 Após configurar as conexões de serviço, certifique-se de que as credenciais estão corretas e que a conexão está funcionando corretamente, pois isso é crucial para o sucesso da execução da pipeline.
-
-![Service Connection](images/serviceconnection.png)
 
 
 2. **Agent Pool**: Utilize o agente padrão do Azure DevOps `ubuntu-latest` conforme especificado na pipeline.
@@ -225,3 +226,6 @@ Após configurar as conexões de serviço, certifique-se de que as credenciais e
     - **Logs de Testes**: Verifique se todos os testes passaram.
     - **Logs de Build**: Confirme que a imagem Docker foi construída e enviada corretamente.
     - **Logs de Deploy**: Assegure-se de que o deploy foi realizado sem erros e que a aplicação está funcionando corretamente no ambiente de destino.
+
+
+
