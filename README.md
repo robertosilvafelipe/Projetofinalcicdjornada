@@ -17,12 +17,13 @@ Para configurar este projeto no seu ambiente local, siga os passos abaixo:
     cd <NOME_DO_DIRETORIO>
     ```
 
-### 2. Software requisitos 
+### 2. Softwares e requisitos 
 As dependências de software para este projeto incluem:
 
 - **Azure DevOps**: Para configuração e execução das pipelines.
 - **Docker**: Para construção e push das imagens Docker.
 - **Python 3.x**: Para execução dos testes automatizados.
+- **Container Apps**: Ter um container apps deployado na azure (ou outro similar) para deploy da aplicação
 - **Terraform**: (opcional, para configuração de infraestrutura como código em um momento posterior).
 
 
