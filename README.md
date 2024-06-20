@@ -159,7 +159,9 @@ stages:
     - **Executando Testes**: A primeira etapa da pipeline é executar testes automáticos. A pipeline configurará um ambiente Python, instalará as dependências e executará os testes definidos no diretório `tests`.
     - **Construindo Imagem Docker**: Após os testes serem executados com sucesso, a pipeline construirá uma imagem Docker e realizará o push para o registro de containers configurado (Docker Hub).
     - **Deploy**: Finalmente, a pipeline fará o deploy da aplicação para o Azure Container Apps, utilizando as credenciais e configurações definidas.
-    
+
+
+   ![Estrutura do Projeto](C:\Users\rober\OneDrive\Documentos\Estudos\Jornada\Modulo5\cicdpipeline.png)
 
 5. **Verificar Resultados**: Após a execução da pipeline, verifique os logs e resultados para assegurar que todas as etapas foram concluídas com sucesso. 
 
