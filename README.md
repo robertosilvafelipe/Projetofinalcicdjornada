@@ -121,7 +121,7 @@ stages:
                 exit 1
               fi
             displayName: 'Verify Application Status'
-
+```
 
 ### Executando a Pipeline no Azure DevOps
 
