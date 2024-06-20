@@ -3,9 +3,9 @@
 ## Introduction 
 Este projeto implementa uma pipeline de Integração e Entrega Contínua (CI/CD) utilizando o Azure DevOps. A pipeline está configurada para executar testes automáticos, construir uma imagem Docker e realizar o push para um registro de containers. Além disso, a pipeline está configurada para implantar a aplicação em um ambiente de Container Apps no Azure.
 
-## Getting Started
+## Iniciando 
 
-### 1. Installation process
+### 1. Processo de instalação 
 Para configurar este projeto no seu ambiente local, siga os passos abaixo:
 
 1. Clone o repositório do Azure DevOps para sua máquina local:
@@ -17,7 +17,7 @@ Para configurar este projeto no seu ambiente local, siga os passos abaixo:
     cd <NOME_DO_DIRETORIO>
     ```
 
-### 2. Software dependencies
+### 2. Software requisitos 
 As dependências de software para este projeto incluem:
 
 - **Azure DevOps**: Para configuração e execução das pipelines.
@@ -25,11 +25,6 @@ As dependências de software para este projeto incluem:
 - **Python 3.x**: Para execução dos testes automatizados.
 - **Terraform**: (opcional, para configuração de infraestrutura como código em um momento posterior).
 
-### 3. Latest releases
-Informações sobre as últimas versões podem ser encontradas no histórico de commits do repositório.
-
-### 4. API references
-Não se aplicam diretamente a este projeto, pois ele se concentra em CI/CD e deploy de aplicações.
 
 ## Build and Test
 
@@ -127,6 +122,68 @@ stages:
 
 1. **Service Connection**: Configure uma conexão de serviço para o Docker Hub e outra para o Azure Container Apps. Certifique-se de que as credenciais estão corretas e que a conexão está funcionando.
 
+#### Configurando uma Conexão de Serviço para o Docker Hub
+
+1. **Navegue até o Projeto no Azure DevOps**:
+   - Abra o Azure DevOps e navegue até o projeto onde você deseja configurar a conexão de serviço.
+
+2. **Acessar Configurações do Projeto**:
+   - No menu lateral esquerdo, clique em "Project settings" (Configurações do projeto).
+
+3. **Selecionar Service Connections**:
+   - Na seção "Pipelines", clique em "Service connections".
+
+4. **Adicionar uma Nova Conexão de Serviço**:
+   - Clique no botão "New service connection" (Nova conexão de serviço) no canto superior direito.
+
+5. **Escolher o Tipo de Serviço**:
+   - Selecione "Docker Registry" e clique em "Next" (Próximo).
+
+6. **Configurar Detalhes da Conexão**:
+   - **Registry type**: Escolha "Docker Hub".
+   - **Docker Registry**: Deixe como `https://index.docker.io/v1/`.
+   - **Docker ID**: Insira seu nome de usuário do Docker Hub.
+   - **Password**: Insira sua senha do Docker Hub.
+   - **Service connection name**: Dê um nome descritivo para sua conexão, por exemplo, `dockerhub-connection`.
+
+7. **Verificar e Salvar**:
+   - Clique em "Verify" para testar a conexão. Se estiver tudo correto, clique em "Save" para salvar a conexão de serviço.
+
+#### Configurando uma Conexão de Serviço para o Azure Container Apps
+
+1. **Adicionar uma Nova Conexão de Serviço**:
+   - No mesmo local das conexões de serviço, clique novamente em "New service connection".
+
+2. **Escolher o Tipo de Serviço**:
+   - Selecione "Azure Resource Manager" e clique em "Next".
+
+3. **Escolher o Método de Autenticação**:
+   - Escolha "Service principal (automatic)" para que o Azure DevOps crie automaticamente um principal de serviço para você.
+
+4. **Configurar Detalhes da Conexão**:
+   - **Subscription**: Selecione a assinatura do Azure que contém seus recursos do Container Apps.
+   - **Resource Group**: Selecione o grupo de recursos onde seu Container App está localizado.
+   - **Service connection name**: Dê um nome descritivo para a conexão, por exemplo, `azure-container-apps-connection`.
+
+5. **Verificar e Salvar**:
+   - Clique em "Verify and save" para testar e salvar a conexão.
+
+### Nota Importante:
+
+Se você estiver utilizando um registro de container local ou outro tipo de registro, a configuração será diferente. Por exemplo:
+
+- **Docker Registry Local**: 
+  - **Registry type**: Escolha "Other" em vez de "Docker Hub".
+  - **Docker Registry**: Insira a URL do seu registro local.
+  - **Docker ID**: Insira o nome de usuário do seu registro local.
+  - **Password**: Insira a senha do seu registro local.
+  - **Service connection name**: Dê um nome descritivo, como `local-registry-connection`.
+
+Após configurar as conexões de serviço, certifique-se de que as credenciais estão corretas e que a conexão está funcionando corretamente, pois isso é crucial para o sucesso da execução da pipeline.
+
+![Service Connection](images/serviceconnection.png)
+
+
 2. **Agent Pool**: Utilize o agente padrão do Azure DevOps `ubuntu-latest` conforme especificado na pipeline.
 
 3. **Variable Group**: Crie um grupo de variáveis no Azure DevOps chamado `variable-group-app` e adicione as seguintes variáveis:
@@ -156,12 +213,12 @@ stages:
 
     Após salvar e iniciar a pipeline, você pode acompanhar o progresso das etapas através do painel do Azure DevOps. A pipeline executará as seguintes etapas:
 
-    - **Executando Testes**: A primeira etapa da pipeline é executar testes automáticos. A pipeline configurará um ambiente Python, instalará as dependências e executará os testes definidos no diretório `tests`.
-    - **Construindo Imagem Docker**: Após os testes serem executados com sucesso, a pipeline construirá uma imagem Docker e realizará o push para o registro de containers configurado (Docker Hub).
-    - **Deploy**: Finalmente, a pipeline fará o deploy da aplicação para o Azure Container Apps, utilizando as credenciais e configurações definidas.
+    - **Test**: A primeira etapa da pipeline é executar testes automáticos. A pipeline configurará um ambiente Python, instalará as dependências e executará os testes definidos no diretório `tests`.
+    - **Build**: Após os testes serem executados com sucesso, a pipeline construirá uma imagem Docker e realizará o push para o registro de containers configurado (Docker Hub).
+    - **Deploy**: Finalmente, a pipeline fará o deploy da aplicação para o Azure Container Apps, utilizando as credenciais e configurações definidas. Fará ainda um teste rapido de disponibilidade da url da aplicação, validando que a url está no ar. 
 
 
-   ![Estrutura do Projeto](images/cicdpipeline.png)
+   ![Pipeline](images/cicdpipeline.png)
 
 5. **Verificar Resultados**: Após a execução da pipeline, verifique os logs e resultados para assegurar que todas as etapas foram concluídas com sucesso. 
 
