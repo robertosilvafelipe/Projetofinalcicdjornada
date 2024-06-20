@@ -132,17 +132,34 @@ stages:
 3. **Variable Group**: Crie um grupo de variáveis no Azure DevOps chamado `variable-group-app` e adicione as seguintes variáveis:
    - `DOCKER_HUB_USERNAME`: Seu nome de usuário do Docker Hub.
    - `DOCKER_HUB_PASSWORD`: Sua senha do Docker Hub.
-   - `servicePrincipalId`: ID do serviço principal para login no Azure.
+   - `servicePrincipalId`: ID do service principal para login no Azure.
    - `servicePrincipalKey`: Chave do serviço principal para login no Azure.
-   - `tenantId`: ID do inquilino do Azure.
-   - `containerAppName`: Nome do aplicativo de container no Azure.
-   - `resourceGroup`: Grupo de recursos no Azure.
+   - `tenantId`: ID do tentant do Azure.
+   - `containerAppName`: Nome do container apps no Azure.
+   - `resourceGroup`: Resource Group no Azure.
 
-4. **Pipeline Execution**: Vá até a seção de Pipelines no Azure DevOps e crie uma nova pipeline selecionando o repositório onde está o arquivo `azure-pipelines.yaml`. Execute a pipeline e monitore o progresso através do painel do Azure DevOps.
+4. **Pipeline Execution**:
+
+    #### Criando a Pipeline
+
+    1. **Navegue até a seção de Pipelines**: No Azure DevOps, vá até o seu projeto e clique em "Pipelines" no menu lateral esquerdo.
+
+    2. **Criar Nova Pipeline**: Clique em "New Pipeline" para iniciar o processo de criação de uma nova pipeline.
+
+    3. **Selecionar Repositório**: Escolha a opção onde está armazenado o seu código. Normalmente, você selecionará "Azure Repos Git" se estiver usando um repositório hospedado no Azure DevOps. Selecione o repositório que contém o arquivo `azure-pipelines.yaml`.
+
+    4. **Configurar Pipeline**: Na próxima tela, selecione a opção "YAML" para definir a pipeline a partir de um arquivo YAML existente. Procure e selecione o arquivo `azure-pipelines.yaml` no seu repositório.
+
+    5. **Revisar e Salvar**: Revise a configuração da pipeline conforme definida no arquivo YAML. Se tudo estiver correto, clique em "Save" e depois em "Run" para iniciar a execução da pipeline.
+
+    #### Executando a Pipeline
+
+    Após salvar e iniciar a pipeline, você pode acompanhar o progresso das etapas através do painel do Azure DevOps. A pipeline executará as seguintes etapas:
 
     - **Executando Testes**: A primeira etapa da pipeline é executar testes automáticos. A pipeline configurará um ambiente Python, instalará as dependências e executará os testes definidos no diretório `tests`.
     - **Construindo Imagem Docker**: Após os testes serem executados com sucesso, a pipeline construirá uma imagem Docker e realizará o push para o registro de containers configurado (Docker Hub).
     - **Deploy**: Finalmente, a pipeline fará o deploy da aplicação para o Azure Container Apps, utilizando as credenciais e configurações definidas.
+    
 
 5. **Verificar Resultados**: Após a execução da pipeline, verifique os logs e resultados para assegurar que todas as etapas foram concluídas com sucesso. 
 
