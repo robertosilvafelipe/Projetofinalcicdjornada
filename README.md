@@ -121,3 +121,31 @@ stages:
                 exit 1
               fi
             displayName: 'Verify Application Status'
+
+
+### Executando a Pipeline no Azure DevOps
+
+1. **Service Connection**: Configure uma conexão de serviço para o Docker Hub e outra para o Azure Container Apps. Certifique-se de que as credenciais estão corretas e que a conexão está funcionando.
+
+2. **Agent Pool**: Utilize o agente padrão do Azure DevOps `ubuntu-latest` conforme especificado na pipeline.
+
+3. **Variable Group**: Crie um grupo de variáveis no Azure DevOps chamado `variable-group-app` e adicione as seguintes variáveis:
+   - `DOCKER_HUB_USERNAME`: Seu nome de usuário do Docker Hub.
+   - `DOCKER_HUB_PASSWORD`: Sua senha do Docker Hub.
+   - `servicePrincipalId`: ID do serviço principal para login no Azure.
+   - `servicePrincipalKey`: Chave do serviço principal para login no Azure.
+   - `tenantId`: ID do inquilino do Azure.
+   - `containerAppName`: Nome do aplicativo de container no Azure.
+   - `resourceGroup`: Grupo de recursos no Azure.
+
+4. **Pipeline Execution**: Vá até a seção de Pipelines no Azure DevOps e crie uma nova pipeline selecionando o repositório onde está o arquivo `azure-pipelines.yaml`. Execute a pipeline e monitore o progresso através do painel do Azure DevOps.
+
+    - **Executando Testes**: A primeira etapa da pipeline é executar testes automáticos. A pipeline configurará um ambiente Python, instalará as dependências e executará os testes definidos no diretório `tests`.
+    - **Construindo Imagem Docker**: Após os testes serem executados com sucesso, a pipeline construirá uma imagem Docker e realizará o push para o registro de containers configurado (Docker Hub).
+    - **Deploy**: Finalmente, a pipeline fará o deploy da aplicação para o Azure Container Apps, utilizando as credenciais e configurações definidas.
+
+5. **Verificar Resultados**: Após a execução da pipeline, verifique os logs e resultados para assegurar que todas as etapas foram concluídas com sucesso. 
+
+    - **Logs de Testes**: Verifique se todos os testes passaram.
+    - **Logs de Build**: Confirme que a imagem Docker foi construída e enviada corretamente.
+    - **Logs de Deploy**: Assegure-se de que o deploy foi realizado sem erros e que a aplicação está funcionando corretamente no ambiente de destino.
