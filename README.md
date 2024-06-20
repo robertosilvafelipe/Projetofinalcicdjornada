@@ -161,7 +161,7 @@ stages:
     - **Deploy**: Finalmente, a pipeline fará o deploy da aplicação para o Azure Container Apps, utilizando as credenciais e configurações definidas.
 
 
-   ![Estrutura do Projeto](images\cicdpipeline.png)
+   ![Estrutura do Projeto](images/cicdpipeline.png)
 
 5. **Verificar Resultados**: Após a execução da pipeline, verifique os logs e resultados para assegurar que todas as etapas foram concluídas com sucesso. 
 
